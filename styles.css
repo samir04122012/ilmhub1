@@ -1,0 +1,366 @@
+/* ==========================================================================
+   ILMHUB AI - Futuristic Glassmorphism & Adaptive Dark/Light Mode Styles
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-emerald: #10b981;
+  --primary-cyan: #06b6d4;
+  --primary-blue: #2563eb;
+  --primary-orange: #f97316;
+  --primary-violet: #8b5cf6;
+  
+  /* Dark Mode tokens */
+  --bg-color-dark: #090d16;
+  --glass-bg-dark: rgba(15, 23, 42, 0.78);
+  --glass-border-dark: rgba(255, 255, 255, 0.08);
+  --text-primary-dark: #f8fafc;
+  --text-secondary-dark: #94a3b8;
+  
+  /* Light Mode tokens */
+  --bg-color-light: #f8fafc;
+  --glass-bg-light: rgba(255, 255, 255, 0.9);
+  --glass-border-light: rgba(203, 213, 225, 0.7);
+  --text-primary-light: #0f172a;
+  --text-secondary-light: #475569;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg-color-dark);
+  color: var(--text-primary-dark);
+}
+
+html.light body {
+  background-color: var(--bg-color-light) !important;
+  color: var(--text-primary-light) !important;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ==========================================================================
+   GLASSMORPHISM PANELS & BORDERS
+   ========================================================================== */
+.glass-panel {
+  background: var(--glass-bg-dark);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border-dark);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.light .glass-panel {
+  background: var(--glass-bg-light) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.03) !important;
+}
+
+.glass-panel-interactive:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 12px 36px -10px rgba(16, 185, 129, 0.25);
+  transform: translateY(-2px);
+}
+
+html.light .glass-panel-interactive:hover {
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  box-shadow: 0 16px 36px -8px rgba(16, 185, 129, 0.18) !important;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   INPUTS & FORMS (Adaptive Light / Dark)
+   ========================================================================== */
+.glass-input {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  color: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+}
+
+html.light .glass-input {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+html.light .glass-input:focus {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+}
+
+html.light .glass-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   LIGHT MODE TEXT & BACKGROUND OVERRIDES
+   ========================================================================== */
+html.light .text-adaptive-title {
+  color: #0f172a !important;
+}
+
+html.light .text-adaptive-sub {
+  color: #475569 !important;
+}
+
+html.light .text-adaptive-muted {
+  color: #64748b !important;
+}
+
+html.light .border-adaptive {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-adaptive-card {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-adaptive-subtle {
+  background-color: #f1f5f9 !important;
+}
+
+/* Header in Light Mode */
+html.light header {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Hero Vignette in Light Mode */
+.hero-vignette-bottom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(to bottom, transparent 40%, rgba(9, 13, 22, 0.75) 80%, #090d16 100%);
+}
+
+html.light .hero-vignette-bottom {
+  background: linear-gradient(to bottom, transparent 40%, rgba(248, 250, 252, 0.8) 80%, #f8fafc 100%) !important;
+}
+
+/* 3D Canvas Hero Container */
+#hero-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+#hero-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ==========================================================================
+   NEON GRADIENTS & BUTTONS
+   ========================================================================== */
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-ilmhub {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 40%, #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow-emerald-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 8px 24px -6px rgba(16, 185, 129, 0.5);
+  color: #064e3b;
+  transition: all 0.25s ease;
+}
+
+html.light .glow-emerald-btn {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  box-shadow: 0 8px 20px -4px rgba(5, 150, 105, 0.4) !important;
+}
+
+.glow-emerald-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(16, 185, 129, 0.65);
+}
+
+.glow-emerald-btn:active {
+  transform: translateY(1px);
+}
+
+/* Glow Blue/Cyan Button */
+.glow-cyan-btn {
+  background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+  box-shadow: 0 8px 24px -6px rgba(6, 182, 212, 0.5);
+  color: #ffffff;
+  transition: all 0.25s ease;
+}
+
+.glow-cyan-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(6, 182, 212, 0.65);
+}
+
+/* ==========================================================================
+   CUSTOM CHECKBOXES & ANIMATIONS
+   ========================================================================== */
+.custom-checkbox {
+  appearance: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(15, 23, 42, 0.4);
+  cursor: pointer;
+  display: inline-grid;
+  place-content: center;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+html.light .custom-checkbox {
+  border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+.custom-checkbox:hover {
+  border-color: #10b981;
+  transform: scale(1.05);
+}
+
+.custom-checkbox:checked {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+  transform: scale(1.05);
+}
+
+.custom-checkbox::before {
+  content: "";
+  width: 0.75rem;
+  height: 0.75rem;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em white;
+  transform-origin: bottom left;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.custom-checkbox:checked::before {
+  transform: scale(1);
+}
+
+/* Topic Card Styles */
+.topic-card {
+  transition: all 0.25s ease;
+}
+
+html.light .topic-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .topic-card:hover {
+  border-color: #94a3b8 !important;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+}
+
+.topic-card.completed {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+}
+
+html.light .topic-card.completed {
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.topic-card.completed .topic-title {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+
+/* ==========================================================================
+   PROGRESS BAR & SHIMMER
+   ========================================================================== */
+.progress-bar-fill {
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6));
+  filter: blur(2px);
+  animation: shimmer 2s infinite linear;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   MODAL & CERTIFICATE PRINT STYLES
+   ========================================================================== */
+.modal-backdrop {
+  background: rgba(3, 7, 18, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+html.light .modal-backdrop {
+  background: rgba(15, 23, 42, 0.5) !important;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #certificate-print-area, #certificate-print-area * {
+    visibility: visible;
+  }
+  #certificate-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+  }
+}

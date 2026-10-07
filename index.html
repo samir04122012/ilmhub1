@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IlmHub AI — Imtihonga Aqlli Tayyorgarlik Rejalashtiruvchisi</title>
+  
+  <!-- Official Favicon -->
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              950: '#022c22'
+            },
+            cyan: {
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2'
+            },
+            ilmblue: '#0284c7',
+            ilmorange: '#f97316'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            heading: ['"Space Grotesk"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- External Libraries -->
+  <!-- Three.js (r128) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Adaptive Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-900 dark:text-slate-100 min-h-screen selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-300">
+
+  <!-- =========================================================================
+       HEADER / NAVBAR (WITH USER PROFILE & SIGN IN / SIGN UP)
+       ========================================================================= -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-200 dark:border-white/5 px-4 lg:px-8 py-3 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- Official Brand Logo -->
+      <a href="#" class="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+        <div class="h-10 sm:h-11 flex items-center justify-center p-1 rounded-xl bg-white/95 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 shadow-sm transition-transform group-hover:scale-105">
+          <img src="logo.png" alt="IlmHub Logo" class="h-8 sm:h-9 w-auto object-contain">
+        </div>
+        <div class="hidden sm:block">
+          <span class="font-heading font-extrabold text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
+            IlmHub <span class="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-bold uppercase tracking-wider">AI 2.0</span>
+          </span>
+          <span class="text-[10px] text-slate-500 dark:text-slate-400 block -mt-0.5 font-medium">Knowledge • Community • Innovation</span>
+        </div>
+      </a>
+
+      <!-- Center Role Switcher Tabs (Managed by Auth Guard) -->
+      <nav id="header-role-nav" class="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-inner">
+        <button 
+          id="tab-btn-student" 
+          data-role-switch="student" 
+          class="px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-1.5"
+        >
+          <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+          <span>O'quvchi</span>
+        </button>
+        <button 
+          id="tab-btn-teacher" 
+          data-role-switch="teacher" 
+          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-all flex items-center gap-1.5"
+        >
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>O'qituvchi</span>
+        </button>
+      </nav>
+
+      <!-- Right Actions: User Profile or Sign In / Sign Up -->
+      <div class="flex items-center gap-2">
+        
+        <!-- Logged In User Profile Badge -->
+        <div id="header-user-profile-area" class="hidden items-center gap-2.5 pl-2 border-l border-slate-200 dark:border-slate-800">
+          <div class="flex items-center gap-2">
+            <div id="header-user-avatar" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 flex items-center justify-center text-lg">
+              👨‍🎓
+            </div>
+            <div class="hidden lg:block text-left">
+              <span id="header-user-name" class="text-xs font-bold text-slate-900 dark:text-white block leading-tight">Azizbek Mahmudov</span>
+              <span id="header-user-role-badge" class="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 inline-block">O'quvchi</span>
+            </div>
+          </div>
+          <button 
+            id="btn-user-logout" 
+            type="button" 
+            class="p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+            title="Tizimdan chiqish"
+          >
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Guest Area (When logged out - prominent buttons) -->
+        <div id="header-guest-area" class="flex items-center gap-2">
+          <button 
+            id="btn-open-signin" 
+            type="button" 
+            class="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-slate-800 dark:text-slate-200 bg-white/80 dark:bg-slate-900/60 transition-all shadow-sm"
+          >
+            Kirish
+          </button>
+          <button 
+            id="btn-open-signup" 
+            type="button" 
+            class="glow-emerald-btn px-4 py-2 rounded-xl text-xs font-bold text-white dark:text-slate-950 shadow-md flex items-center gap-1.5"
+          >
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>Ro'yxatdan O'tish</span>
+          </button>
+        </div>
+
+        <!-- Audio Toggle -->
+        <button 
+          id="audio-toggle-btn" 
+          class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 hover:text-emerald-500 transition-colors shadow-sm" 
+          title="Ovoz effektlarini boshqarish"
+        >
+          <i data-lucide="volume-2" class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500"></i>
+        </button>
+
+        <!-- Dark/Light Mode Toggle -->
+        <button 
+          id="theme-toggle-btn" 
+          class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors shadow-sm" 
+          title="Yorug'/Qorong'i rejimni almashtirish"
+        >
+          <i data-lucide="sun" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-500"></i>
+        </button>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       HERO SECTION WITH 3D CANVAS & ADAPTIVE LIGHT/DARK VIGNETTES
+       ========================================================================= -->
+  <section class="relative min-h-[480px] lg:min-h-[520px] flex items-center justify-center overflow-hidden border-b border-slate-200 dark:border-white/5">
+    
+    <!-- 3D Three.js Canvas Container -->
+    <div id="hero-canvas-container"></div>
+
+    <!-- Gradient Vignette Overlays -->
+    <div class="hero-vignette-bottom"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-80 bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none z-[1]"></div>
+    <div class="absolute bottom-10 right-10 w-72 h-72 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none z-[1]"></div>
+
+    <!-- Hero Content Overlay -->
+    <div class="relative z-10 max-w-5xl mx-auto px-4 py-12 text-center">
+      
+      <!-- Antigravity Tag -->
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-5 animate-float-slow backdrop-blur-md shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        IlmHub AI Ta'lim Ekotizimi • Nazariya va Amaliyot Muvozanati
+      </div>
+
+      <h1 class="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight">
+        Imtihonga tayyorgarlikni <br class="hidden sm:inline" />
+        <span class="text-gradient-emerald">aniq daqiqasigacha</span> rejalashtiring
+      </h1>
+
+      <p class="mt-4 text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        Matematika, Tarix, Ingliz tili, Rus tili va boshqa fanlarni tanlang. AI qancha minut nazariya, qancha minut misol ishlash va qaysi kitoblardan tayyorlanishni avtomatik belgilab beradi.
+      </p>
+
+      <!-- 1. GUEST HERO ACTIONS (Only visible for guests) -->
+      <div id="hero-guest-actions" class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <button 
+          id="hero-btn-signup"
+          type="button" 
+          onclick="window.authManager.showAuthModal('signup')"
+          class="glow-emerald-btn px-6 py-3.5 rounded-2xl font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xl shadow-emerald-500/25 transition-all text-white dark:text-slate-950"
+        >
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>Bepul Boshlash & Ro'yxatdan O'tish</span>
+        </button>
+
+        <button 
+          id="hero-btn-signin"
+          type="button" 
+          class="px-5 py-3.5 rounded-2xl glass-panel glass-panel-interactive text-slate-800 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center gap-2 border border-slate-300 dark:border-slate-700 hover:border-emerald-500 shadow-sm"
+          onclick="window.authManager.showAuthModal('signin')"
+        >
+          <i data-lucide="log-in" class="w-4 h-4 text-emerald-500"></i>
+          <span>Tizimga Kirish (Sign In)</span>
+        </button>
+      </div>
+
+      <!-- 2. AUTHENTICATED USER WELCOME & MODULE MENU (Visible only when logged in) -->
+      <div id="hero-authenticated-panel" class="hidden mt-8 max-w-3xl mx-auto space-y-4">
+        <div class="glass-panel p-5 sm:p-6 rounded-3xl border border-emerald-500/30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+          <div class="flex items-center gap-3.5">
+            <div id="hero-auth-avatar" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 flex items-center justify-center text-3xl shadow-inner shrink-0">
+              👨‍🎓
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500 dark:text-slate-400">Shaxsiy Kabinetingiz:</span>
+                <span id="hero-auth-role-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  O'quvchi
+                </span>
+                <span id="hero-auth-class-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+                  10-A Sinf
+                </span>
+              </div>
+              <h3 class="font-heading font-black text-xl sm:text-2xl text-slate-900 dark:text-white mt-0.5">
+                Xush kelibsiz, <span id="hero-auth-user-name" class="text-gradient-emerald">Azizbek Mahmudov</span>! 👋
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Qaysi bo'limdan foydalanmoqchisiz? Quyidagi modullardan birini tanlang:
+              </p>
+            </div>
+          </div>
+
+          <button 
+            type="button" 
+            onclick="window.authManager.logout()"
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 transition-all flex items-center gap-1.5 self-center shrink-0"
+            title="Hisobdan chiqish"
+          >
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span>Chiqish</span>
+          </button>
+        </div>
+
+        <!-- Quick Module Navigation Bar in Hero -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <button 
+            type="button" 
+            onclick="window.switchAppModule('plans')"
+            class="p-3.5 rounded-2xl glass-panel hover:border-emerald-500 transition-all text-left flex items-center gap-3 group shadow-sm bg-white/70 dark:bg-slate-900/60"
+          >
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+              🎯
+            </div>
+            <div>
+              <span class="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-400 transition-colors">AI Rejalar</span>
+              <span class="text-[10px] text-slate-500 dark:text-slate-400">Maqsad tahlili & jadval</span>
+            </div>
+          </button>
+
+          <button 
+            type="button" 
+            onclick="window.switchAppModule('tasks')"
+            class="p-3.5 rounded-2xl glass-panel hover:border-cyan-500 transition-all text-left flex items-center gap-3 group shadow-sm bg-white/70 dark:bg-slate-900/60"
+          >
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+              ✅
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-cyan-400 transition-colors">Vazifalarim</span>
+                <span id="hero-badge-tasks-count" class="px-1.5 py-0.2 rounded-full text-[9px] bg-cyan-500/20 text-cyan-400 font-bold">2</span>
+              </div>
+              <span class="text-[10px] text-slate-500 dark:text-slate-400">To-Do list & topshiriqlar</span>
+            </div>
+          </button>
+
+          <button 
+            type="button" 
+            onclick="window.switchAppModule('chat')"
+            class="p-3.5 rounded-2xl glass-panel hover:border-indigo-500 transition-all text-left flex items-center gap-3 group shadow-sm bg-white/70 dark:bg-slate-900/60 col-span-2 sm:col-span-1"
+          >
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+              💬
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-400 transition-colors">Sinf Chati</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              </div>
+              <span class="text-[10px] text-slate-500 dark:text-slate-400">Jonli muloqot & yechimlar</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       1. MEHMONLAR UCHUN ASOSIY SAHIFA BLOKI (GUEST LANDING PAGE)
+       Agar login qilinmagan bo'lsa, hisob-kitoblar mutlaqo yopiq bo'ladi va
+       ushbu batafsil, jozibali copywriting axborot bloki chiqib turadi!
+       ========================================================================= -->
+  <section id="guest-landing-section" class="max-w-7xl mx-auto px-4 lg:px-8 py-14 space-y-16">
+    
+    <!-- A) LOYIHA HAQIDA BATAFSIL MA'LUMOT VA MISSIYASI -->
+    <div class="glass-panel p-8 sm:p-12 rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl relative overflow-hidden bg-gradient-to-br from-white/95 dark:from-slate-900/90 to-emerald-50/40 dark:to-emerald-950/20">
+      
+      <div class="max-w-3xl space-y-4">
+        <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
+          ✦ IlmHub Nima Maqsadda Yaratilgan?
+        </span>
+        <h2 class="font-heading font-black text-2xl sm:text-4xl text-slate-900 dark:text-white leading-snug">
+          O'zbekistonda imtihon topshiruvchi har bir yosh uchun <span class="text-gradient-emerald">aqlli strategik yo'lboshchi</span>.
+        </h2>
+        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+          Statistikaga ko'ra, abituriyent va o'quvchilarning <strong>72% dan ortig'i</strong> imtihonga tayyorlanishda qaysi kitobdan o'qishni bilmaslik, vaqtni betartib sarflash va haddan tashqari nazariyaga berilib amaliyotni unutish oqibatida kutilgan natijaga erisha olmaydi. 
+          <strong>IlmHub platformasi</strong> — inson psixologiyasi va sun'iy intellekt tahliliga asoslangan holda o'qish jarayonini kunlar va daqiqalargacha aniq taqsimlovchi yagona milliy EdTech tizimidir.
+        </p>
+      </div>
+
+      <!-- Quick Feature Metrics Cards -->
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-200 dark:border-slate-800">
+        <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div class="text-2xl font-black font-heading text-emerald-600 dark:text-emerald-400">100%</div>
+          <div class="text-xs font-bold text-slate-900 dark:text-white">Balanslashgan Vaqt</div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Nazariya va misol ishlash mutanosibligi</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div class="text-2xl font-black font-heading text-cyan-600 dark:text-cyan-400">8+ Asosiy Fan</div>
+          <div class="text-xs font-bold text-slate-900 dark:text-white">To'liq Metodik Baza</div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Matematika, Tarix, Ingliz tili, Ona tili va b.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div class="text-2xl font-black font-heading text-indigo-600 dark:text-indigo-400">Real Sinf Chati</div>
+          <div class="text-xs font-bold text-slate-900 dark:text-white">Ustoz & Shogird Aloqasi</div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Jonli vazifalar va darhol javoblar</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- B) QANDAY REAL MUAMMOLARGA YECHIM TOPADI? (3 ASOSIY USTUN) -->
+    <div class="space-y-6">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">
+          Muammolar va Ularning Ilmiy Yechimi
+        </span>
+        <h3 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white">
+          Nega aynan IlmHub bilan tayyorgarlik 3 barobar samarali?
+        </h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+        
+        <!-- Card 1 -->
+        <div class="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-200 dark:border-white/10 space-y-4 hover:border-emerald-500 transition-all shadow-md">
+          <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-xl">
+            ⚠️
+          </div>
+          <div class="space-y-1.5">
+            <h4 class="font-heading font-bold text-base text-slate-900 dark:text-white">
+              1-Muammo: Rejasizlik va Vaqt Yetishmovchiligi
+            </h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              O'quvchi bir fanga ko'p, boshqasiga kam vaqt ajratadi yoki imtihonga 3 kun qolganda barcha mavzularni bir kunga tiqishtirib tashlaydi.
+            </p>
+          </div>
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-start gap-1.5">
+            <span>✅</span>
+            <span>IlmHub Yechimi: AI kunlar soniga qarab mavzularni teng taqsimlaydi va 0 kunlik xatolarni qat'iy rad etadi.</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-200 dark:border-white/10 space-y-4 hover:border-cyan-500 transition-all shadow-md">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-xl">
+            ⚖️
+          </div>
+          <div class="space-y-1.5">
+            <h4 class="font-heading font-bold text-base text-slate-900 dark:text-white">
+              2-Muammo: Faqat Qoida Yodlash Yoki Faqat Test Yechish
+            </h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Matematika yoki fizikani faqat nazariya o'qib o'rganib bo'lmaydi. Amaliyot yetishmasligi imtihonda formulani eslay olmaslikka olib keladi.
+            </p>
+          </div>
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 text-xs text-cyan-600 dark:text-cyan-400 font-semibold flex items-start gap-1.5">
+            <span>✅</span>
+            <span>IlmHub Yechimi: 60 daqiqalik darsning necha daqiqasi nazariya, necha daqiqasi misol ishlash ekanini fanga mos aniq hisoblaydi.</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-200 dark:border-white/10 space-y-4 hover:border-indigo-500 transition-all shadow-md">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold text-xl">
+            🔗
+          </div>
+          <div class="space-y-1.5">
+            <h4 class="font-heading font-bold text-base text-slate-900 dark:text-white">
+              3-Muammo: Ustoz va O'quvchi Aloqasizligi
+            </h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Uyda tayyorlanayotgan o'quvchining qaysi mavzuda tiqilib qolganini ustoz bilmaydi, o'quvchi esa savol bera olmaydi.
+            </p>
+          </div>
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 text-xs text-indigo-600 dark:text-indigo-400 font-semibold flex items-start gap-1.5">
+            <span>✅</span>
+            <span>IlmHub Yechimi: Yagona sinf xonasi, ustoz bergan vazifalarni bajarish va sinf jonli chati orqali 24/7 bog'liqlik.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- C) PLATFORMA QANDAY ISHLAYDI? (3 ODDIY QADAM) -->
+    <div class="glass-panel p-8 sm:p-12 rounded-3xl border border-slate-200 dark:border-white/10 space-y-8 shadow-xl">
+      <div class="text-center max-w-xl mx-auto space-y-1.5">
+        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Oddiy va Samarali</span>
+        <h3 class="font-heading font-black text-2xl text-slate-900 dark:text-white">Platforma Qanday Ishlaydi?</h3>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+        <div class="space-y-3 p-4">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-black text-lg mx-auto flex items-center justify-center shadow-sm">
+            1
+          </div>
+          <h4 class="font-heading font-bold text-base text-slate-900 dark:text-white">Ro'yxatdan O'ting</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            O'quvchi yoki Ustoz rolini tanlang va o'z sinfingizga ulaning.
+          </p>
+        </div>
+
+        <div class="space-y-3 p-4">
+          <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 font-black text-lg mx-auto flex items-center justify-center shadow-sm">
+            2
+          </div>
+          <h4 class="font-heading font-bold text-base text-slate-900 dark:text-white">AI Rejasini Tuzing</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Qo'lda yoki AI orqali fanni tanlang, daqiqalar va kitoblar tavsiyasini oling.
+          </p>
+        </div>
+
+        <div class="space-y-3 p-4">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-black text-lg mx-auto flex items-center justify-center shadow-sm">
+            3
+          </div>
+          <h4 class="font-heading font-bold text-base text-slate-900 dark:text-white">O'rganing va Sinovdan O'ting</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Mavzularni chek-boks bilan belgilang, test topshiring va sertifikat oling!
+          </p>
+        </div>
+      </div>
+
+      <!-- Katta CTA Ro'yxatdan O'tish Bloki -->
+      <div class="pt-6 border-t border-slate-200 dark:border-slate-800 text-center space-y-4">
+        <h4 class="font-heading font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+          Tayyorgarlikni hoziroq tizimli boshlang!
+        </h4>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <button 
+            type="button" 
+            onclick="window.authManager.showAuthModal('signup')"
+            class="glow-emerald-btn px-8 py-3.5 rounded-2xl font-bold text-sm flex items-center gap-2 text-white dark:text-slate-950 shadow-xl"
+          >
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>Bepul Ro'yxatdan O'tish</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="window.authManager.showAuthModal('signin')"
+            class="px-6 py-3.5 rounded-2xl glass-panel font-bold text-sm text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-emerald-500"
+          >
+            <span>Mavjud Hisobga Kirish</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =========================================================================
+       2. HIMOYALANGAN ASOSIY ILOVA BO'LIMI (PROTECTED APP DASHBOARD)
+       AUTHENTICATION GUARD: Faqat tizimga kirgan foydalanuvchilar uchungina ochiladi!
+       ========================================================================= -->
+  <div id="protected-app-section" class="hidden space-y-10">
+
+    <!-- ASOSIY MODULLAR NAVIGATSIYA MENYUSI (SPA TABS: AI REJALAR | VAZIFALAR | SINF CHATI | USTOZ MARKAZI) -->
+    <div id="main-module-nav-bar" class="max-w-7xl mx-auto px-4 lg:px-8 pt-4">
+      <div class="glass-panel p-2 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-center gap-2 sm:gap-3 shadow-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl">
+        <button 
+          id="tab-nav-plans" 
+          onclick="window.switchAppModule('plans')" 
+          class="module-nav-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
+        >
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>🎯 AI Rejalar</span>
+        </button>
+
+        <button 
+          id="tab-nav-tasks" 
+          onclick="window.switchAppModule('tasks')" 
+          class="module-nav-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2"
+        >
+          <i data-lucide="check-square" class="w-4 h-4"></i>
+          <span>✅ Vazifalarim</span>
+          <span id="badge-nav-tasks-count" class="px-2 py-0.5 rounded-full text-[10px] bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/20">2</span>
+        </button>
+
+        <button 
+          id="tab-nav-chat" 
+          onclick="window.switchAppModule('chat')" 
+          class="module-nav-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2"
+        >
+          <i data-lucide="messages-square" class="w-4 h-4"></i>
+          <span>💬 Sinf Chati</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        </button>
+
+        <button 
+          id="tab-nav-teacher" 
+          onclick="window.switchAppModule('teacher')" 
+          class="module-nav-btn hidden px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2"
+        >
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>👨‍🏫 Ustoz Markazi</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         1. USTOZLAR BOSHQARUV MARKAZI (TEACHER VIEW SECTION)
+         Faqat o'qituvchilar yoki 'Ustoz Markazi' bosilganda ochiladigan boshqaruv paneli!
+         ========================================================================= -->
+    <section id="teacher-view-section" class="hidden max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-12">
+      <!-- Teacher Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 text-xs font-semibold mb-2">
+            👨‍🏫 Ustozlar Boshqaruv Markazi
+          </div>
+          <h2 class="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 dark:text-white">
+            Sinf Monitoringi, O'quvchilar & Vazifalar Boshqaruvi
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            O'quvchilarni ism-familiyasi bilan sinfga qo'shing, AI rejasini tuzib butun sinfga vazifa qilib tashlang va chatda javob bering.
+          </p>
+        </div>
+
+        <button 
+          type="button"
+          onclick="window.switchAppModule('chat')"
+          class="glow-cyan-btn px-5 py-3 rounded-2xl font-bold text-sm flex items-center gap-2 self-start sm:self-center shadow-md"
+        >
+          <i data-lucide="messages-square" class="w-4 h-4"></i>
+          <span>Sinf Chati & Muloqot ➔</span>
+        </button>
+      </div>
+
+      <!-- O'QUVCHINI ISMI-FAMILIYASI BILAN SINFGA QO'SHISH FORMASI -->
+      <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-white/10 space-y-4 shadow-xl">
+        <div class="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+            <i data-lucide="user-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Sinfga Yangi O'quvchi Qo'shish</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">O'quvchining ism-familiyasini yozib, 10-A sinfiga biriktiring</p>
+          </div>
+        </div>
+
+        <form id="teacher-add-student-to-class-form" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+          <div class="sm:col-span-5 space-y-1">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">O'quvchi Ism va Familiyasi <span class="text-rose-500">*</span></label>
+            <input type="text" id="enroll-student-name" required placeholder="Masalan: Jasurbek Oripov" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm font-medium">
+          </div>
+          <div class="sm:col-span-4 space-y-1">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Qaysi fan bo'yicha tayyorlanadi?</label>
+            <input type="text" id="enroll-student-subject" placeholder="Masalan: Matematika & Fizika" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm font-medium" value="Matematika">
+          </div>
+          <div class="sm:col-span-3">
+            <button type="submit" class="w-full glow-emerald-btn py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 text-white dark:text-slate-950 shadow-md">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Sinfga Qo'shish</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Teacher Summary Metrics Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-white/5 space-y-2 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-sm">
+            <span>Faol O'quvchilar</span>
+            <i data-lucide="users" class="w-5 h-5 text-emerald-500"></i>
+          </div>
+          <div id="metric-total-students" class="font-heading font-black text-3xl text-slate-900 dark:text-white">4</div>
+          <div class="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
+            <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            <span>Barcha o'quvchilar faol monitoringda</span>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-sm">
+            <span>O'rtacha Bajarilish Foizi</span>
+            <i data-lucide="percent" class="w-5 h-5 text-cyan-500"></i>
+          </div>
+          <div id="metric-avg-progress" class="font-heading font-black text-3xl text-cyan-600 dark:text-cyan-400">67%</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Muntazam dinamik hisoblash</div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-sm">
+            <span>Jami Rejalashtirilgan Vaqt</span>
+            <i data-lucide="clock" class="w-5 h-5 text-indigo-500"></i>
+          </div>
+          <div id="metric-total-hours" class="font-heading font-black text-3xl text-indigo-600 dark:text-indigo-400">118 soat</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">O'quvchilar bo'yicha jami yuklama</div>
+        </div>
+      </div>
+
+      <!-- Students Real-time Monitoring List -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-heading font-bold text-xl text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="list-checks" class="w-5 h-5 text-emerald-500"></i>
+            <span>Shogirdlarning Jonli Rejalari</span>
+          </h3>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Har bir o'quvchi rejasini bir bosishda tekshiring</span>
+        </div>
+
+        <!-- Students Container -->
+        <div id="teacher-students-list" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         2. REJA TUZISH & ASOSIY IMTIHON MODULI (STUDENT & TEACHER PLANNER)
+         ========================================================================= -->
+    <main id="student-view-section" class="max-w-7xl mx-auto px-4 lg:px-8 py-4 space-y-10">
+    
+    <!-- Validation Error Alert Banner -->
+    <div id="validation-error-alert" class="hidden p-4 rounded-2xl bg-rose-500/10 border border-rose-500/40 text-rose-600 dark:text-rose-200 text-sm font-medium shadow-md"></div>
+
+    <!-- 1. SUN'IY INTELLEKT (AI) MAQSAD TAHLILCHISI (NATURAL LANGUAGE GOAL PLANNER) -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-slate-900/60 to-cyan-500/10 space-y-4 shadow-xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+            Sun'iy Intellekt Maqsad Tahlilchisi (Natural Language AI)
+          </span>
+          <h3 class="font-heading font-black text-xl sm:text-2xl text-slate-900 dark:text-white mt-1">
+            Maqsadingiz yoki xohishingizni erkin tilda yozing:
+          </h3>
+        </div>
+        <span class="text-xs text-slate-500 dark:text-slate-400">Erkin matndan avtomatik reja tuzish</span>
+      </div>
+
+      <div class="space-y-3">
+        <div class="relative">
+          <textarea 
+            id="ai-goal-prompt-input" 
+            rows="3" 
+            class="glass-input w-full p-4 rounded-2xl text-sm sm:text-base font-medium text-slate-900 dark:text-white placeholder:text-slate-500 focus:ring-2 focus:ring-emerald-500 resize-none"
+            placeholder="Masalan: Men 4 kunda Matematikadan hosilalar va trigonometriyaning barcha qoidalarini kuniga 70 daqiqadan o'rganib chiqmoqchiman..."
+          ></textarea>
+        </div>
+
+        <!-- Quick AI Prompt Chips -->
+        <div class="flex flex-wrap items-center gap-2 pt-1 text-xs">
+          <span class="text-slate-500 dark:text-slate-400 font-semibold text-[11px]">Tayyor namunalar:</span>
+          <button type="button" class="btn-prompt-chip px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:text-emerald-400 transition-all font-medium" data-prompt="Matematikadan trigonometriya va hosilalarni 4 kunda kuniga 70 daqiqadan noldan o'rganmoqchiman">
+            📐 Matematika: 4 kun / 70 daq
+          </button>
+          <button type="button" class="btn-prompt-chip px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-cyan-500 hover:text-cyan-400 transition-all font-medium" data-prompt="Ingliz tilidan IELTS Writing va Speaking modullarini 5 kunda kuniga 90 daqiqadan intensiv tayyorlanishim kerak">
+            🇬🇧 IELTS: 5 kun / 90 daq
+          </button>
+          <button type="button" class="btn-prompt-chip px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:text-indigo-400 transition-all font-medium" data-prompt="Fizikadan Nyuton qonunlari, impuls va energiyaning saqlanishini 3 kunda kuniga 60 daqiqadan chuqur o'rganmoqchiman">
+            ⚡ Fizika: 3 kun / 60 daq
+          </button>
+          <button type="button" class="btn-prompt-chip px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-500 hover:text-amber-400 transition-all font-medium" data-prompt="Ona tili va adabiyotidan ergashgan qo'shma gaplar va insho yozishni 3 kunda kuniga 50 daqiqadan takrorlamoqchiman">
+            ✍️ Ona tili: 3 kun / 50 daq
+          </button>
+        </div>
+
+        <!-- AI Analyze & Generate Plan Button -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+          <div id="ai-parsing-status" class="hidden items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>AI maqsadni tahlil qilib, kunlik reja va kitoblarni shakllantirmoqda...</span>
+          </div>
+          <button 
+            id="btn-ai-generate-from-goal" 
+            type="button" 
+            class="w-full sm:w-auto glow-emerald-btn px-6 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg text-white dark:text-slate-950 ml-auto"
+          >
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>🧠 AI Tahlil Qilish & Reja Tuzish</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FANLARNI TANLASH SELEKTORI (SUBJECT SELECTOR BAR) -->
+    <div class="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-white/10 space-y-3 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Sun'iy Intellekt Fanlar Bazasi</span>
+          <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Tayyorlanmoqchi bo'lgan fanni tanlang:</h3>
+        </div>
+        <span class="text-xs text-slate-500 dark:text-slate-400">Har bir fanga mos nazariya, kitoblar va qadamlar</span>
+      </div>
+
+      <!-- Subject Buttons Grid -->
+      <div class="flex flex-wrap items-center gap-2 pt-1">
+        <button type="button" data-subject-select="matematika" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-white shadow-md border border-emerald-400 flex items-center gap-1.5 transition-all">
+          <span>📐</span> Matematika
+        </button>
+        <button type="button" data-subject-select="tarix" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 flex items-center gap-1.5 transition-all">
+          <span>🏛️</span> Tarix
+        </button>
+        <button type="button" data-subject-select="ingliz" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 flex items-center gap-1.5 transition-all">
+          <span>🇬🇧</span> Ingliz tili
+        </button>
+        <button type="button" data-subject-select="rus_tili" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 flex items-center gap-1.5 transition-all">
+          <span>🇷🇺</span> Rus tili
+        </button>
+        <button type="button" data-subject-select="ona_tili" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 flex items-center gap-1.5 transition-all">
+          <span>✍️</span> Ona tili
+        </button>
+        <button type="button" data-subject-select="fizika" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 flex items-center gap-1.5 transition-all">
+          <span>⚡</span> Fizika
+        </button>
+        <button type="button" data-subject-select="biologiya" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 flex items-center gap-1.5 transition-all">
+          <span>🧬</span> Biologiya
+        </button>
+        <button type="button" data-subject-select="kimyo" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 flex items-center gap-1.5 transition-all">
+          <span>🧪</span> Kimyo
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid Container: Setup Panel (Left) & AI Subject Breakdown & Progress (Right) -->
+    <div id="planner-section" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- 1-QADAM: KIRISH PANELI (IKKI TOMONLAMA: QO'LDA VS AI) -->
+      <div class="lg:col-span-6 space-y-6">
+        <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-white/10 shadow-xl relative overflow-hidden">
+          
+          <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg border border-emerald-500/30">
+                1
+              </div>
+              <div>
+                <h2 class="font-heading font-bold text-xl text-slate-900 dark:text-white">Reja Tuzish Paneli</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Qo'lda kiritish yoki AI avtomatik taqsimoti</p>
+              </div>
+            </div>
+
+            <!-- Quick sample button -->
+            <button 
+              type="button" 
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 transition-colors"
+              onclick="document.getElementById('input-days').value=3; document.getElementById('input-minutes').value=60; window.app.selectSubject('matematika');"
+            >
+              3 kun / 60 daq
+            </button>
+          </div>
+
+          <!-- Mode Switcher Tabs: AI vs Qo'lda (Manual) -->
+          <div class="mt-4 flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-inner">
+            <button 
+              id="tab-mode-ai" 
+              type="button" 
+              class="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-emerald-500 text-white shadow-md flex items-center justify-center gap-1.5 transition-all"
+            >
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span>🤖 AI Yordamida Yaratish</span>
+            </button>
+            <button 
+              id="tab-mode-manual" 
+              type="button" 
+              class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5 transition-all"
+            >
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+              <span>✍️ Qo'lda Kiritish Rejimi</span>
+            </button>
+          </div>
+
+          <form id="planner-form" class="mt-5 space-y-5">
+            
+            <!-- Manual Custom Subject Name Input (Hidden in AI mode, visible in manual) -->
+            <div id="manual-custom-subject-input" class="space-y-1.5 hidden">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                Fan nomi (Ixtiyoriy yozing)
+              </label>
+              <input 
+                type="text" 
+                id="input-custom-subject-name" 
+                placeholder="Masalan: Geometriya, Mental arifmetika, IELTS Speaking..." 
+                class="glass-input w-full px-4 py-2.5 rounded-xl text-xs sm:text-sm"
+              />
+            </div>
+
+            <!-- Inputs Row: Days and Daily Minutes -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              
+              <!-- Kunlar Soni -->
+              <div class="space-y-2">
+                <label for="input-days" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Kunlar soni <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <input 
+                    type="number" 
+                    id="input-days" 
+                    min="1" 
+                    max="30" 
+                    value="3" 
+                    required 
+                    class="glass-input w-full px-4 py-3 rounded-xl text-base font-semibold text-slate-900 dark:text-white pl-10 focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Masalan: 3"
+                  />
+                  <i data-lucide="calendar" class="w-5 h-5 text-slate-400 absolute left-3 top-3.5"></i>
+                </div>
+                
+                <div class="flex items-center gap-1.5 pt-1">
+                  <span class="text-[11px] text-slate-500">Tezkor:</span>
+                  <button type="button" data-quick-days="2" class="px-2 py-0.5 rounded text-xs bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-500/20 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60">2 kun</button>
+                  <button type="button" data-quick-days="3" class="px-2 py-0.5 rounded text-xs bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-500/20 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60 font-bold text-emerald-600 dark:text-emerald-400">3 kun</button>
+                  <button type="button" data-quick-days="5" class="px-2 py-0.5 rounded text-xs bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-500/20 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60">5 kun</button>
+                </div>
+              </div>
+
+              <!-- Kunlik Daqiqa -->
+              <div class="space-y-2">
+                <label for="input-minutes" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Kunlik daqiqa <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <input 
+                    type="number" 
+                    id="input-minutes" 
+                    min="15" 
+                    max="1440" 
+                    value="60" 
+                    step="5" 
+                    required 
+                    class="glass-input w-full px-4 py-3 rounded-xl text-base font-semibold text-slate-900 dark:text-white pl-10 focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Masalan: 60"
+                  />
+                  <i data-lucide="clock" class="w-5 h-5 text-slate-400 absolute left-3 top-3.5"></i>
+                </div>
+                <div id="minutes-helper-text" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium pt-1">
+                  Kuniga ~ 1 soat
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Dynamic Mavzular Ro'yxati Idishi -->
+            <div class="space-y-3 pt-2">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  O'rganiladigan Mavzular Ro'yxati:
+                </label>
+                <button 
+                  id="btn-add-topic-field" 
+                  type="button" 
+                  class="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 transition-colors"
+                >
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                  <span>+ Mavzu qo'shish</span>
+                </button>
+              </div>
+
+              <!-- Topics Inputs Dynamic Container -->
+              <div id="topics-inputs-container" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <!-- Populated dynamically via app.js -->
+              </div>
+            </div>
+
+            <!-- Action Buttons: Generate & Send to class -->
+            <div class="space-y-2.5 pt-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button 
+                  type="submit" 
+                  class="glow-emerald-btn py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg text-white dark:text-slate-950"
+                >
+                  <i data-lucide="calculator" class="w-4 h-4"></i>
+                  <span>Rejani Taqsimlash</span>
+                </button>
+                <button 
+                  id="btn-ai-auto-generate" 
+                  type="button" 
+                  class="glow-cyan-btn py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg text-white"
+                >
+                  <i data-lucide="sparkles" class="w-4 h-4"></i>
+                  <span>✨ AI yordamida yaratish</span>
+                </button>
+              </div>
+
+              <!-- Teacher Action: Send to class -->
+              <button 
+                id="btn-send-plan-to-class" 
+                type="button" 
+                class="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 flex items-center justify-center gap-2 transition-all shadow-sm"
+              >
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>🚀 Ushbu Rejani Butun Sinfga Vazifa Qilib Tashlash</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- O'NG TOMON: AI METODIKASI, KITOBLAR VA PROGRESS BAR -->
+      <div class="lg:col-span-6 space-y-6">
+        
+        <!-- AI Subject Breakdown Card (Nazariya / Misol ishlash / Manbalar / Kitoblar) -->
+        <div id="ai-subject-breakdown-card" class="glass-panel rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-xl">
+          <!-- Rendered dynamically via app.js -->
+        </div>
+
+        <!-- Live Progress Dashboard Widget -->
+        <div class="glass-panel rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-xl relative overflow-hidden">
+          
+          <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold text-lg border border-cyan-500/30">
+                4
+              </div>
+              <div>
+                <h3 class="font-heading font-bold text-xl text-slate-900 dark:text-white">Bajarilish Jarayoni</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Real vaqtdagi monitoring va foiz</p>
+              </div>
+            </div>
+
+            <!-- Reset Completed Checkboxes Button -->
+            <button 
+              id="reset-plan-btn" 
+              type="button" 
+              class="px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1.5"
+            >
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              Tozalash
+            </button>
+          </div>
+
+          <!-- Circular and Linear Progress Hero Layout -->
+          <div class="mt-6 flex flex-col sm:flex-row items-center gap-6 justify-between">
+            
+            <!-- Circular Progress Indicator -->
+            <div class="relative w-28 h-28 shrink-0 flex items-center justify-center">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" class="text-slate-200 dark:text-slate-800/80" fill="transparent" />
+                <circle 
+                  id="circular-progress-svg-circle" 
+                  cx="50" 
+                  cy="50" 
+                  r="42" 
+                  stroke="url(#progressGradient)" 
+                  stroke-width="8" 
+                  stroke-linecap="round" 
+                  fill="transparent" 
+                  style="stroke-dasharray: 263.89; stroke-dashoffset: 131.94; transition: stroke-dashoffset 0.6s ease;"
+                />
+                <defs>
+                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#10b981" />
+                    <stop offset="100%" stop-color="#06b6d4" />
+                  </linearGradient>
+                </defs>
+              </svg>
+
+              <div class="absolute flex flex-col items-center justify-center">
+                <span id="circular-progress-text" class="font-heading font-black text-2xl text-slate-900 dark:text-white">50%</span>
+                <span class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Natija</span>
+              </div>
+            </div>
+
+            <!-- Stats Details -->
+            <div class="flex-1 w-full space-y-3">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Umumiy ko'rsatkich:</span>
+                <span id="progress-percentage-label" class="font-heading font-black text-2xl text-emerald-600 dark:text-emerald-400">50%</span>
+              </div>
+
+              <!-- Main Linear Progress Bar -->
+              <div class="w-full h-4 rounded-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 overflow-hidden p-0.5">
+                <div 
+                  id="progress-bar-fill" 
+                  class="h-full rounded-full bg-gradient-to-r from-emerald-500 via-cyan-400 to-indigo-500 progress-bar-fill shadow-lg shadow-emerald-500/50" 
+                  style="width: 50%;"
+                ></div>
+              </div>
+
+              <div class="flex items-center justify-between text-xs pt-1">
+                <span id="completed-count-text" class="text-slate-700 dark:text-slate-300 font-semibold">3 / 6 ta mavzu bajarildi</span>
+                <span id="remaining-minutes-badge" class="font-mono text-cyan-600 dark:text-cyan-400 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">30 daqiqa qoldi</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Motivational Status Banner -->
+          <div id="progress-status-banner" class="mt-6 p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-sm"></div>
+
+          <!-- Focus Study Timer (Pomodoro Widget) -->
+          <div id="study-timer-widget" class="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-slate-100 dark:from-slate-900/80 to-white dark:to-slate-900/40 border border-slate-200 dark:border-slate-800/80">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                <i data-lucide="timer" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <span class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold tracking-wider block">Fokus Taymer</span>
+                <span id="current-timer-topic-name" class="text-xs text-slate-800 dark:text-slate-200 font-medium truncate max-w-[200px] block">Standart Pomodoro (25 daq)</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <span id="study-timer-countdown" class="font-mono font-black text-2xl text-cyan-600 dark:text-cyan-400 tracking-wider">25:00</span>
+              <div class="flex items-center gap-2">
+                <button 
+                  id="timer-play-pause-btn" 
+                  type="button" 
+                  class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 text-white dark:text-slate-950 flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform"
+                >
+                  <i data-lucide="play" class="w-4 h-4"></i>
+                  Boshlash
+                </button>
+                <button 
+                  id="timer-reset-btn" 
+                  type="button" 
+                  class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-slate-200 dark:bg-slate-800/60 hover:bg-slate-300 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 2 VA 3-QADAM: TAQSIMOT NATIJALARI (KUNLIK KARTALAR) -->
+    <section class="space-y-6 pt-2">
+      <div id="plan-results-heading" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h2 class="font-heading font-extrabold text-2xl text-slate-900 dark:text-white flex items-center gap-2.5">
+            <span class="text-gradient-emerald">Kunlik Taqvimi & Mavzular Taqsimoti</span>
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+            Kunlar va daqiqalar bo'yicha teng va proporsional taqsimlangan darslar
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>0 Kunlik xatolar rad etilgan</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Schedule Cards Grid -->
+      <div id="schedule-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- KEYINGI BOSQICH: AI IMTIHON SINOVI & TAYYORGARLIK SERTIFIKATI (PHASE 2) -->
+    <section id="phase2-exam-section" class="pt-8 border-t border-slate-200 dark:border-slate-800 space-y-8">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-2">
+            🚀 5-Qadam • Keyingi Bosqich
+          </div>
+          <h2 class="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 dark:text-white">
+            AI Imtihon Sinovi & Tayyorgarlik Sertifikati
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Rejalashtirilgan 6 ta mavzu bo'yicha tezkor blitz testini topshiring va rasmiy IlmHub akkreditatsiya sertifikatiga ega bo'ling.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button 
+            id="btn-share-plan" 
+            type="button" 
+            class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:border-emerald-500 flex items-center gap-2 transition-all shadow-sm"
+          >
+            <i data-lucide="share-2" class="w-4 h-4 text-emerald-500"></i>
+            <span>Rejani Ulashish</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quiz Questions Grid -->
+      <div class="space-y-6">
+        <div class="flex items-center justify-between">
+          <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="help-circle" class="w-5 h-5 text-indigo-500"></i>
+            <span>6 ta Mavzu Bo'yicha Blitz Sinov Savollari</span>
+          </h3>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Har bir savol 1 ball</span>
+        </div>
+
+        <div id="ai-quiz-questions-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800">
+          <div>
+            <h4 class="font-heading font-bold text-base text-slate-900 dark:text-white">Javoblarni yakunlashga tayyormisiz?</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Test yakunlangach, AI tayyorgarlik darajangizni hisoblaydi va sertifikat yaratadi.</p>
+          </div>
+          <button 
+            id="btn-submit-ai-quiz" 
+            type="button" 
+            class="glow-emerald-btn px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 text-white dark:text-slate-950 shadow-lg"
+          >
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>Natijani Tekshirish & Sertifikat Olish</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quiz Results & Certificate Container -->
+      <div id="quiz-results-container" class="hidden space-y-6 pt-4">
+        
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/40 bg-emerald-500/5 space-y-4 shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Sinov Yakunlandi</span>
+              <h3 id="quiz-score-badge" class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white mt-1">
+                6 / 6 ta to'g'ri (100%)
+              </h3>
+            </div>
+            <div class="flex items-center gap-3">
+              <button 
+                id="btn-retake-quiz" 
+                type="button" 
+                class="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition-colors"
+              >
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                Qayta topshirish
+              </button>
+              <button 
+                id="btn-print-certificate" 
+                type="button" 
+                class="glow-cyan-btn px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg"
+              >
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Sertifikatni Chop Etish (PDF)</span>
+              </button>
+            </div>
+          </div>
+
+          <p id="quiz-score-advice" class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium"></p>
+        </div>
+
+        <!-- Official IlmHub Certificate -->
+        <div id="certificate-print-area" class="p-8 sm:p-12 rounded-3xl border-4 border-double border-emerald-500/50 bg-gradient-to-br from-white dark:from-slate-950 via-slate-50 dark:via-slate-900 to-emerald-50/30 dark:to-emerald-950/20 shadow-2xl relative overflow-hidden text-slate-900 dark:text-white">
+          
+          <div class="flex items-center justify-between pb-6 border-b-2 border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-4">
+              <img src="logo.png" alt="IlmHub Logo" class="h-14 w-auto object-contain">
+              <div>
+                <h4 class="font-heading font-black text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white">
+                  ILMHUB AI ACADEMY
+                </h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold tracking-wider uppercase">
+                  Rasmiy Tayyorgarlik Akkreditatsiyasi
+                </p>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <span class="text-xs font-mono text-slate-400 block">ID: ILM-2026-X99</span>
+              <span id="cert-date" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">7-Oktabr, 2026</span>
+            </div>
+          </div>
+
+          <div class="py-8 text-center space-y-4">
+            <p class="text-xs sm:text-sm uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold">
+              Ushbu Sertifikat Taqdim Etiladi:
+            </p>
+            <h3 id="cert-student-name" class="font-heading font-black text-3xl sm:text-4xl text-gradient-emerald">
+              Imtihon Nomzodi (O'quvchi)
+            </h3>
+            <p class="text-sm text-slate-600 dark:text-slate-300 max-w-xl mx-auto leading-relaxed">
+              IlmHub sun'iy intellekt rejalashtiruvchisi orqali belgilangan barcha asosiy fan mavzularini to'liq qamrab olganligi va tayyorgarlik sinovini muvaffaqiyatli tamomlaganligi tasdiqlanadi.
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <div id="cert-score-badge" class="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                100% Tayyorgarlik Darajasi
+              </div>
+              <div id="cert-total-hours" class="px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 font-bold text-sm">
+                3 soatlik intensiv tayyorgarlik
+              </div>
+            </div>
+
+            <div class="pt-6">
+              <span class="text-xs text-slate-500 dark:text-slate-400 block mb-2 font-medium">O'zlashtirilgan Imtihon Mavzulari:</span>
+              <div id="cert-topics-list" class="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto"></div>
+            </div>
+          </div>
+
+          <div class="pt-8 border-t-2 border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <div>
+              <div class="font-bold text-slate-900 dark:text-slate-200">IlmHub AI Evaluation Engine</div>
+              <div class="text-[10px]">Avtomatlashtirilgan tekshiruv tizimi</div>
+            </div>
+
+            <div class="w-16 h-16 rounded-full border-2 border-dashed border-emerald-500/40 flex items-center justify-center text-[10px] font-bold text-emerald-600 dark:text-emerald-400 -rotate-12 bg-emerald-500/5">
+              MUHR • VERIFIED
+            </div>
+
+            <div class="text-right">
+              <div class="font-bold text-slate-900 dark:text-slate-200">Akademik Kengash</div>
+              <div class="text-[10px]">Toshkent, O'zbekiston</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- =======================================================================
+       3. SINF HAMJAMIYATI & JONLI CHAT (CLASSROOM & COMMUNITY CHAT)
+       O'quvchi va O'qituvchi uchun birdek ochiq umumiy muloqot va vazifalar zali!
+       ======================================================================= -->
+  <section id="classroom-community-section" class="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8 border-t border-slate-200 dark:border-slate-800">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">
+          🏫 Sinf Hamjamiyati & Jonli Muloqot
+        </div>
+        <h2 class="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 dark:text-white">
+          10-A Sinf Kabineti: Vazifalar & Jonli Chat
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+          Ustoz tomonidan yuborilgan vazifalarni bajaring va sinfdoshlar bilan real vaqtda fikr almashing.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          Sinf Kodi: <span class="text-cyan-500 font-mono">ILM-10A</span>
+        </span>
+        <span class="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-500/20 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          24 nafar online
+        </span>
+      </div>
+    </div>
+
+    <!-- 2 Columns: Left = Assignments & Tasks, Right = Classroom Chat -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left: O'qituvchi bergan vazifalar & To-Do List -->
+      <div id="classroom-assignments-card" class="lg:col-span-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-500"></i>
+            <span>O'qituvchi Bergan Vazifalar & Topshiriqlar</span>
+          </h3>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Bajarilganini belgilang</span>
+        </div>
+
+        <!-- Assignments container -->
+        <div id="class-assignments-container" class="space-y-4">
+          <!-- Populated via auth.js renderAssignmentsList() -->
+        </div>
+
+        <!-- Collapsible Personal Task Add Form & List -->
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="check-square" class="w-4 h-4 text-cyan-500"></i>
+              Shaxsiy To-Do Vazifalarim
+            </span>
+            <button 
+              type="button" 
+              onclick="window.app.toggleAddTaskForm()" 
+              class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+            >
+              <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+              <span>+ Yangi Vazifa</span>
+            </button>
+          </div>
+
+          <!-- Add Task Form -->
+          <div id="panel-add-task-form" class="hidden glass-panel p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3 bg-white/50 dark:bg-slate-900/50">
+            <input 
+              type="text" 
+              id="input-task-title" 
+              placeholder="Vazifa nomi (Masalan: Usmonov to'plamidan 14-betdagi 10 ta misol)..." 
+              class="glass-input w-full px-3.5 py-2 rounded-xl text-xs"
+            />
+            <div class="flex items-center justify-between gap-2">
+              <select id="input-task-subject" class="glass-input px-2.5 py-1.5 rounded-lg text-xs">
+                <option value="Matematika">Matematika</option>
+                <option value="Fizika">Fizika</option>
+                <option value="Ingliz tili">Ingliz tili</option>
+                <option value="Tarix">Tarix</option>
+                <option value="Ona tili">Ona tili</option>
+                <option value="Umumiy">Umumiy</option>
+              </select>
+              <button 
+                type="button" 
+                onclick="window.app.handlePersonalTaskSubmit()"
+                class="glow-emerald-btn px-4 py-1.5 rounded-lg text-xs font-bold text-white dark:text-slate-950 shadow-sm"
+              >
+                Qo'shish
+              </button>
+            </div>
+          </div>
+
+          <!-- Personal tasks list -->
+          <div id="tasks-list-container" class="space-y-2.5"></div>
+        </div>
+      </div>
+
+      <!-- Right: Real-time Classroom Chat (Sinfda jonli chat) -->
+      <div id="classroom-chat-card" class="lg:col-span-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="messages-square" class="w-5 h-5 text-cyan-500"></i>
+            <span>Sinf Jonli Chati</span>
+          </h3>
+          <span class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Jonli muloqot
+          </span>
+        </div>
+
+        <!-- Chat Window Box -->
+        <div class="glass-panel rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col h-[500px] bg-white/70 dark:bg-slate-900/80">
+          
+          <!-- Channel pills -->
+          <div class="px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto text-xs bg-slate-50 dark:bg-slate-900/50">
+            <span class="px-2.5 py-1 rounded-lg bg-indigo-500 text-white font-bold shrink-0">#umumiy</span>
+            <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 shrink-0">#vazifalar</span>
+            <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 shrink-0">#savollar</span>
+          </div>
+
+          <!-- Chat Messages Scroll Area -->
+          <div id="class-chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3.5">
+            <!-- Populated via auth.js renderChatMessages() -->
+          </div>
+
+          <!-- Quick Suggestions -->
+          <div class="px-3 py-1.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex items-center gap-2 overflow-x-auto text-[11px]">
+            <span class="text-slate-400 shrink-0 font-medium">Tezkor:</span>
+            <button type="button" onclick="document.getElementById('class-chat-input').value='Ustoz, 12-misol yechimini tushunmadim'; document.getElementById('class-chat-input').focus();" class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-cyan-400 shrink-0">
+              12-misol yechimi?
+            </button>
+            <button type="button" onclick="document.getElementById('class-chat-input').value='Vazifani muvaffaqiyatli bajardim! 🎉'; document.getElementById('class-chat-input').focus();" class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-emerald-400 shrink-0">
+              Vazifani bajardim! 🎉
+            </button>
+            <button type="button" onclick="document.getElementById('class-chat-input').value='Rejadagi formulalarni to\'liq takrorladim'; document.getElementById('class-chat-input').focus();" class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-indigo-400 shrink-0">
+              Formulalarni takrorladim
+            </button>
+          </div>
+
+          <!-- Chat Input Form -->
+          <form id="class-chat-form" class="p-3 border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 flex items-center gap-2">
+            <input 
+              type="text" 
+              id="class-chat-input" 
+              required 
+              placeholder="Savol yoki fikringizni yozing..." 
+              class="glass-input flex-1 px-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white"
+            />
+            <button 
+              type="submit" 
+              class="glow-emerald-btn px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 text-white dark:text-slate-950 shadow-md shrink-0"
+            >
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Yuborish</span>
+            </button>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  </div>
+  <!-- End of #protected-app-section -->
+
+  <!-- =========================================================================
+       MODAL: AUTH (SIGN IN & SIGN UP WITH STUDENT / TEACHER ROLE SELECTION)
+       ========================================================================= -->
+  <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-white/10 max-w-md w-full space-y-6 shadow-2xl relative bg-white dark:bg-slate-900">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <img src="logo.png" alt="IlmHub Logo" class="h-8 w-auto object-contain">
+          <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">IlmHub Tizimiga Kirish</h3>
+        </div>
+        <button id="btn-close-auth-modal" type="button" class="p-1 rounded-lg text-slate-400 hover:text-slate-800 dark:hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Auth Tabs: Sign In / Sign Up -->
+      <div class="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-center">
+        <button id="tab-auth-signin" type="button" onclick="window.authManager.showAuthModal('signin')" class="flex-1 py-2 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow-md">
+          Kirish (Sign In)
+        </button>
+        <button id="tab-auth-signup" type="button" onclick="window.authManager.showAuthModal('signup')" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800">
+          Ro'yxatdan o'tish (Sign Up)
+        </button>
+      </div>
+
+      <!-- 1. SIGN IN BOX -->
+      <div id="auth-signin-box" class="space-y-4">
+        <form id="signin-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email yoki Telefon</label>
+            <input type="text" id="signin-email" required placeholder="student@ilmhub.uz" value="student@ilmhub.uz" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Parol</label>
+            <input type="password" id="signin-password" required placeholder="Parol..." value="123" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          </div>
+          <button type="submit" class="w-full glow-emerald-btn py-3 rounded-xl font-bold text-xs text-white dark:text-slate-950 shadow-md">
+            Kirish
+          </button>
+        </form>
+
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 text-center space-y-2">
+          <span class="text-[11px] text-slate-400 block">Tezkor Demo Kirish (Bitta bosishda):</span>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-demo-student-login" type="button" class="py-2 px-3 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500 hover:text-white transition-colors">
+              👨‍🎓 O'quvchi demo
+            </button>
+            <button id="btn-demo-teacher-login" type="button" class="py-2 px-3 rounded-xl text-xs font-semibold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500 hover:text-white transition-colors">
+              👨‍🏫 O'qituvchi demo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. SIGN UP BOX (WITH ROLE SELECTION: STUDENT VS TEACHER) -->
+      <div id="auth-signup-box" class="hidden space-y-4">
+        <form id="signup-form" class="space-y-3.5">
+          
+          <!-- Role Selection Radios -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Siz kimsiz? (Rolingizni tanlang) *</label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer bg-slate-50 dark:bg-slate-800/60 hover:border-emerald-500">
+                <input type="radio" name="signup_role" id="signup-role-student" value="student" checked class="text-emerald-500 focus:ring-emerald-500">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">👨‍🎓 O'quvchi</span>
+              </label>
+              <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer bg-slate-50 dark:bg-slate-800/60 hover:border-cyan-500">
+                <input type="radio" name="signup_role" id="signup-role-teacher" value="teacher" class="text-cyan-500 focus:ring-cyan-500">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">👨‍🏫 O'qituvchi</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Ism va Familiya *</label>
+            <input type="text" id="signup-name" required placeholder="Masalan: Sardor Aliyev" class="glass-input w-full px-3.5 py-2 rounded-xl text-xs">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email manzili *</label>
+            <input type="email" id="signup-email" required placeholder="sardor@gmail.com" class="glass-input w-full px-3.5 py-2 rounded-xl text-xs">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Parol *</label>
+            <input type="password" id="signup-password" required placeholder="Kamida 4 ta belgi..." class="glass-input w-full px-3.5 py-2 rounded-xl text-xs">
+          </div>
+
+          <!-- Student extra fields -->
+          <div id="signup-student-fields" class="space-y-2">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Sinf yoki Guruh (Kodi: ILM-10A)</label>
+              <input type="text" id="signup-student-grade" placeholder="10-A Sinf" value="10-A Sinf" class="glass-input w-full px-3.5 py-2 rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Asosiy qiziqqan fan</label>
+              <select id="signup-student-subject" class="glass-input w-full px-3.5 py-2 rounded-xl text-xs">
+                <option value="Matematika">Matematika</option>
+                <option value="Tarix">Tarix</option>
+                <option value="Ingliz tili">Ingliz tili</option>
+                <option value="Rus tili">Rus tili</option>
+                <option value="Ona tili">Ona tili</option>
+                <option value="Fizika">Fizika</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Teacher extra fields (hidden by default) -->
+          <div id="signup-teacher-fields" class="space-y-2 hidden">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">O'qitadigan fani</label>
+              <input type="text" id="signup-teacher-subject" placeholder="Matematika va Aniq Fanlar" class="glass-input w-full px-3.5 py-2 rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Maktab yoki O'quv Markaz nomi</label>
+              <input type="text" id="signup-teacher-institution" placeholder="Toshkent IT Akademiyasi" class="glass-input w-full px-3.5 py-2 rounded-xl text-xs">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full glow-emerald-btn py-2.5 rounded-xl font-bold text-xs text-white dark:text-slate-950 shadow-md">
+            Ro'yxatdan O'tish
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       FOOTER
+       ========================================================================= -->
+  <footer class="border-t border-slate-200 dark:border-white/5 py-8 px-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="IlmHub Logo" class="h-8 w-auto object-contain">
+        <span class="font-heading font-bold text-slate-700 dark:text-slate-300">IlmHub AI</span>
+        <span>— Knowledge • Community • Innovation.</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+        <span>60 FPS Three.js Canvas</span>
+        <span>•</span>
+        <span>Sinf Chati & Vazifalar</span>
+        <span>•</span>
+        <span>AI Metodikasi</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Official Test Case Quick Trigger Script -->
+  <script>
+    function runOfficialTestCase() {
+      if (window.authManager && !window.authManager.currentUser) {
+        window.authManager.login(window.authManager.users[1] || DEFAULT_USERS[1]);
+      }
+      document.getElementById('input-days').value = 3;
+      document.getElementById('input-minutes').value = 60;
+      
+      if (window.app) {
+        // Set exactly 2 topics for 3 days @ 60 min
+        const twoTopics = [
+          "1. Ratsional tenglamalar va tengsizliklar",
+          "2. Funksiya xossalari va grafigi"
+        ];
+        window.app.state.days = 3;
+        window.app.state.dailyMinutes = 60;
+        window.app.state.topics = twoTopics;
+        window.app.state.completedTopics = [0]; // 1 out of 2 completed => 50%
+        window.app.renderTopicsInputFields(twoTopics);
+        window.app.calculateAndRenderPlan(true);
+        window.app.renderSubjectBreakdown();
+      }
+
+      const planSection = document.getElementById('planner-section');
+      if (planSection) {
+        planSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function runThreeTopicsProgressTest(completedCount = 1) {
+      if (window.authManager && !window.authManager.currentUser) {
+        window.authManager.login(window.authManager.users[1] || DEFAULT_USERS[1]);
+      }
+      document.getElementById('input-days').value = 3;
+      document.getElementById('input-minutes').value = 60;
+
+      if (window.app) {
+        // Exactly 3 topics to test 33% (1 done), 67% (2 done), 100% (3 done)
+        const threeTopics = [
+          "1. Matematika: Hosilaning ma'nosi",
+          "2. Fizika: Nyuton qonunlari",
+          "3. Ona tili: Ergashgan gaplar"
+        ];
+        window.app.state.days = 3;
+        window.app.state.dailyMinutes = 60;
+        window.app.state.topics = threeTopics;
+        
+        // Array of indices up to completedCount
+        window.app.state.completedTopics = [];
+        for (let i = 0; i < completedCount; i++) {
+          window.app.state.completedTopics.push(i);
+        }
+
+        window.app.renderTopicsInputFields(threeTopics);
+        window.app.calculateAndRenderPlan(true);
+        window.app.renderSubjectBreakdown();
+      }
+
+      const planSection = document.getElementById('planner-section');
+      if (planSection) {
+        planSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  </script>
+
+  <!-- Application Scripts -->
+  <script src="audio-feedback.js"></script>
+  <script src="three-hero.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
